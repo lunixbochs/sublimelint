@@ -130,8 +130,8 @@ class SublimeLint(sublime_plugin.EventListener):
 
     def on_open_settings(self, view):
         # handle opening user preferences file
-        if view.file_name():
-            filename = view.file_name()
+        filename = view.file_name()
+        if filename:
             dirname = os.path.basename(os.path.dirname(filename))
             filename = os.path.basename(filename)
             if filename != 'SublimeLint.sublime-settings':
