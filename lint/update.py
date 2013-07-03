@@ -13,6 +13,12 @@ API_ENDPOINT = 'https://api.github.com/repos/{}/commits'
 UPDATE_ZIP = 'https://github.com/{}/archive/master.zip'
 REPO = 'lunixbochs/linters'
 
+import socket
+if not hasattr(socket, 'ssl'):
+    print('SublimeLint: SSL not available: falling back to HTTP.')
+    API_ENDPOINT = API_ENDPOINT.replace('https', 'http')
+    UPDATE_ZIP = UPDATE_ZIP.replace('https', 'http')
+
 def fetch_url(url):
     return urlopen(url).read()
 
