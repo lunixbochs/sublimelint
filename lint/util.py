@@ -174,7 +174,7 @@ def tmpdir(cmd, files, filename, code):
     return out
 
 def popen(cmd, env=None):
-    import lint.persist as persist
+    from . import persist
     if isinstance(cmd, str):
         cmd = cmd,
 
