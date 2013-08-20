@@ -1,3 +1,4 @@
+from urllib.error import URLError
 from urllib.request import urlopen
 import json
 import os
@@ -11,13 +12,8 @@ from .util import touch
 
 API_ENDPOINT = 'https://api.github.com/repos/{}/commits'
 UPDATE_ZIP = 'https://github.com/{}/archive/master.zip'
+FALLBACK_ZIP = 'http://bochs.info/~aegis/linters.zip'
 REPO = 'lunixbochs/linters'
-
-import socket
-if not hasattr(socket, 'ssl'):
-    print('SublimeLint: SSL not available: falling back to HTTP.')
-    API_ENDPOINT = API_ENDPOINT.replace('https', 'http')
-    UPDATE_ZIP = UPDATE_ZIP.replace('https', 'http')
 
 def fetch_url(url):
     return urlopen(url).read()
@@ -51,7 +47,11 @@ def extract_update(zip_text, base, revision=None):
                 f.write(data)
 
 def install_update(base, head=None):
-    zip_text = fetch_url(UPDATE_ZIP.format(REPO))
+    try:
+        zip_text = fetch_url(UPDATE_ZIP.format(REPO))
+    except URLError:
+        print('Error while fetching linters over SSL. Falling back to HTTP.')
+        zip_text = fetch_url(FALLBACK_ZIP)
     extract_update(zip_text, base, head)
     persist.modules = Modules(base).load_all()
 
@@ -73,7 +73,12 @@ def update(base):
         persist.debug('Checking for linter updates (last: {}s).'.format(elapsed))
         if os.path.exists(base):
             version = read_safe(version_file)
-            head = get_head_sha(REPO)
+            try:
+                head = get_head_sha(REPO)
+            except URLError:
+                print('Error while fetching git HEAD SHA. Skipping update.')
+                return
+
             if head != version:
                 persist.debug('Newer version found. Updating to {}.'.format(head))
                 install_update(base, head)
