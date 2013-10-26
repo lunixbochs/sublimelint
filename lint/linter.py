@@ -1,4 +1,5 @@
 import re
+import shlex
 import sublime
 
 from .highlight import Highlight
@@ -10,11 +11,12 @@ syntax_re = re.compile(r'/([^/]+)\.tmLanguage$')
 class Tracker(type):
     def __init__(cls, name, bases, attrs):
         if bases:
+            cls._cmd = attrs.get('cmd', ())
+            cls.args = attrs.get('args', ())
             persist.add_language(cls, name, attrs)
 
 class Linter(metaclass=Tracker):
     language = ''
-    cmd = ()
     regex = ''
     multiline = False
     flags = 0
@@ -31,6 +33,7 @@ class Linter(metaclass=Tracker):
     lint_settings = None
 
     def __init__(self, view, syntax, filename=None):
+        self.__class__.cmd = property(self.__class__.get_cmd)
         self.view = view
         self.syntax = syntax
         self.filename = filename
@@ -46,11 +49,22 @@ class Linter(metaclass=Tracker):
 
         self.highlight = Highlight(scope=self.scope)
 
+    def get_cmd(self):
+        cmd = self.settings.get('cmd', self._cmd)
+        if isinstance(cmd, str):
+            cmd = shlex.split(cmd)
+        cmd = tuple(cmd)
+        return cmd
+
     @classmethod
     def get_settings(cls):
         plugins = persist.settings.get('plugins', {})
+        base_settings = {}
+        if cls._cmd:
+            base_settings['cmd'] = cls._cmd
+        base_settings.update(plugins.get(cls.__name__, {}))
         settings = cls.defaults or {}
-        settings.update(plugins.get(cls.__name__, {}))
+        settings.update(base_settings)
         return settings
 
     @property
