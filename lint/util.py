@@ -127,7 +127,9 @@ def tmpfile(cmd, code, suffix=''):
         cmd = cmd,
 
     f = tempfile.NamedTemporaryFile(suffix=suffix)
-    f.write(code.encode('utf8'))
+    if isinstance(code, str):
+        code = code.encode('utf8')
+    f.write(code)
     f.flush()
 
     cmd = tuple(cmd) + (f.name,)
