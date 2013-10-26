@@ -1,6 +1,9 @@
+import fnmatch
+import os
 import re
 import shlex
 import sublime
+import traceback
 
 from .highlight import Highlight
 from . import persist
@@ -217,6 +220,19 @@ class Linter(metaclass=Tracker):
     def lint(self):
         if not (self.language and self.cmd and self.regex):
             raise NotImplementedError
+
+        excludes = self.settings.get('excludes')
+        if excludes:
+            try:
+                if isinstance(excludes, str):
+                    excludes = [excludes]
+                for pattern in excludes:
+                    if fnmatch.fnmatch(self.filename, pattern):
+                        persist.debug("skipping `{}` for pattern '{}'".format(
+                            os.path.basename(self.filename), pattern))
+                        return
+            except Exception:
+                persist.debug(traceback.format_exc())
 
         output = self.run(self.cmd, self.code)
         if not output:
