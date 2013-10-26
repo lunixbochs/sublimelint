@@ -30,11 +30,11 @@ Command Palette
 
 Press `cmd+shift+p` on OS X, `ctrl+shift+p` for everyone else. Type `sublimelint` to see the available commands:
 
-* *Next Error* Jump to the next highlighed error or warning in your code.
-* *Previous Error* Jump to the previous error.
-* *Show All Errors* Open a command panel listing all errors in the current file.
-* *Report (Open Files)* Lint all open files and show a report in a new view.
-* *Preferences: SublimeLint Settings - User* Change global and linter settings.
+* *Next Error* - Jump to the next highlighed error or warning in your code.
+* *Previous Error* - Jump to the previous error.
+* *Show All Errors* - Open a command panel listing all errors in the current file.
+* *Report (Open Files)* - Lint all open files and show a report in a new view.
+* *Preferences: SublimeLint Settings - User* - Change global and linter settings.
 
 Settings
 -----
