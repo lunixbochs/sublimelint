@@ -12,7 +12,6 @@ class Tracker(type):
     def __init__(cls, name, bases, attrs):
         if bases:
             cls._cmd = attrs.get('cmd', ())
-            cls.args = attrs.get('args', ())
             persist.add_language(cls, name, attrs)
 
 class Linter(metaclass=Tracker):
