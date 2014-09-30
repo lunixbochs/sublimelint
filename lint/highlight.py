@@ -56,10 +56,14 @@ class Highlight:
         newlines.append(len(code))
 
     def full_line(self, line):
+        if line < 0 or line + 2 >= len(self.newlines):
+            return 0, 0
         a, b = self.newlines[line:line+2]
         return a, b + 1
 
     def range(self, line, pos, length=1):
+        if line < 0:
+            return
         a, b = self.full_line(line)
         if length == 1:
             code = self.code[a:b][pos:]
@@ -72,6 +76,8 @@ class Highlight:
             self.underlines.append(sublime.Region(pos + i + self.char_offset))
 
     def regex(self, line, regex, word_match=None, line_match=None):
+        if line < 0:
+            return
         self.line(line)
         offset = 0
 
@@ -95,6 +101,8 @@ class Highlight:
             self.range(line, start+offset, end-start)
 
     def near(self, line, near):
+        if line < 0:
+            return
         self.line(line)
         a, b = self.full_line(line)
         text = self.code[a:b]
