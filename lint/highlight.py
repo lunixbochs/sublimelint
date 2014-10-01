@@ -1,3 +1,4 @@
+from collections import defaultdict
 import sublime
 import re
 
@@ -5,13 +6,14 @@ word_re = re.compile(r'^([0-9a-zA-Z_]+)')
 
 class HighlightSet:
     def __init__(self):
-        self.all = {}
+        self.all = defaultdict(set)
 
     def add(self, h):
-        if not h.scope in self.all:
-            self.all[h.scope] = set()
-
-        self.all[h.scope].add(h)
+        if isinstance(h, HighlightSet):
+            for scope, highlights in h.all.items():
+                self.all[scope].update(highlights)
+        else:
+            self.all[h.scope].add(h)
 
     def draw(self, view, prefix='lint', scope=None):
         for scope in self.all:

@@ -66,8 +66,8 @@ class SublimeLint(sublime_plugin.EventListener):
         highlights = HighlightSet()
 
         for linter in linters:
-            if linter.highlight:
-                highlights.add(linter.highlight)
+            if linter.highlights:
+                highlights.add(linter.highlights)
 
             if linter.errors:
                 errors.update(linter.errors)

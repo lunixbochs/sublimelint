@@ -5,7 +5,7 @@ import shlex
 import sublime
 import traceback
 
-from .highlight import Highlight
+from .highlight import Highlight, HighlightSet
 from . import persist
 from . import util
 
@@ -31,6 +31,7 @@ class Linter(metaclass=Tracker):
 
     errors = None
     highlight = None
+    highlights = None
     defaults = None
     lint_settings = None
 
@@ -49,7 +50,7 @@ class Linter(metaclass=Tracker):
             except:
                 persist.debug('Error compiling regex for {}'.format(self.language))
 
-        self.highlight = Highlight(scope=self.scope)
+        self.reset('')
 
     def get_cmd(self):
         cmd = self.settings.get('cmd', self._cmd)
@@ -216,6 +217,8 @@ class Linter(metaclass=Tracker):
         self.filename = filename or self.filename
         self.highlight = highlight or Highlight(
             self.code, scope=self.scope, outline=self.outline)
+        self.highlights = HighlightSet()
+        self.highlights.add(self.highlight)
 
     def lint(self):
         if not (self.language and self.cmd and self.regex):
@@ -265,10 +268,10 @@ class Linter(metaclass=Tracker):
                 self.error(row, message)
 
     def draw(self, prefix='lint'):
-        self.highlight.draw(self.view, prefix)
+        self.highlights.draw(self.view, prefix)
 
     def clear(self, prefix='lint'):
-        self.highlight.clear(self.view, prefix)
+        self.highlights.clear(self.view, prefix)
 
     # helper methods
 
@@ -283,8 +286,10 @@ class Linter(metaclass=Tracker):
             else:
                 return False
 
-    def error(self, line, error):
-        self.highlight.line(line)
+    def error(self, line, error, highlight=None):
+        if not highlight:
+            highlight = self.highlight
+        highlight.line(line)
 
         error = str(error)
         if line in self.errors:
