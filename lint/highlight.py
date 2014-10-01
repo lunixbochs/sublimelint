@@ -58,15 +58,19 @@ class Highlight:
         newlines.append(len(code))
 
     def full_line(self, line):
-        if line < 0 or line + 2 >= len(self.newlines):
-            return 0, 0
+        if line < 0 or line + 2 > len(self.newlines):
+            persist.debug('warning: full_line({}) out of range'.format(line))
+            return None, None
         a, b = self.newlines[line:line+2]
         return a, b + 1
 
     def range(self, line, pos, length=1):
         if line < 0:
+            persist.debug('warning: range({}, ...) out of range'.format(line))
             return
         a, b = self.full_line(line)
+        if a is None:
+            return
         if length == 1:
             code = self.code[a:b][pos:]
             match = word_re.search(code)
@@ -79,11 +83,14 @@ class Highlight:
 
     def regex(self, line, regex, word_match=None, line_match=None):
         if line < 0:
+            persist.debug('warning: regex({}, ...) out of range'.format(line))
             return
         self.line(line)
         offset = 0
 
         a, b = self.full_line(line)
+        if a is None:
+            return
         lineText = self.code[a:b]
         if line_match:
             match = re.match(line_match, lineText)
@@ -104,9 +111,12 @@ class Highlight:
 
     def near(self, line, near):
         if line < 0:
+            persist.debug('warning: near({}, ...) out of range'.format(line))
             return
         self.line(line)
         a, b = self.full_line(line)
+        if a is None:
+            return
         text = self.code[a:b]
 
         start = text.find(near)
