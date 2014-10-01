@@ -188,11 +188,14 @@ class Linter(metaclass=Tracker):
                 if linter.settings.get('disable'):
                     continue
 
-                if not linter.selector:
+                if not linter.selector and not linter.excluded():
                     linter.reset(code, filename=filename)
                     linter.lint()
 
             for sel, linter in selectors:
+                if linter.excluded():
+                    continue
+
                 linters.append(linter)
                 if sel in sections:
                     linter.reset(code, filename=filename)
@@ -224,9 +227,6 @@ class Linter(metaclass=Tracker):
     def lint(self):
         if not (self.language and self.cmd and self.regex):
             raise NotImplementedError
-
-        if self.excluded():
-            return
 
         output = self.run(self.cmd, self.code)
         if not output:
