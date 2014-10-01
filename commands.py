@@ -6,6 +6,7 @@ from threading import Thread
 
 from . import sublimelint
 from .lint import persist
+from .lint.edit import Edit
 
 def error_command(f):
     def run(self, edit, **kwargs):
@@ -96,7 +97,7 @@ class sublimelint_report(sublime_plugin.WindowCommand):
             if not linters:
                 return
 
-            def insert(edit):
+            with Edit(output) as edit:
                 if not any(l.errors for l in linters):
                     return
 
@@ -108,10 +109,7 @@ class sublimelint_report(sublime_plugin.WindowCommand):
                             for error in errors:
                                 out += '  {}: {}\n'.format(line, error)
 
-                output.insert(edit, output.size(), out)
-
-            persist.edits[output.id()].append(insert)
-            output.run_command('sublimelint_edit')
+                edit.insert(output.size(), out)
 
         args = (view.id(), finish_lint)
         Thread(target=sublimelint.SublimeLint.lint, args=args).start()

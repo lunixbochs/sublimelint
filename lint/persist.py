@@ -110,17 +110,11 @@ if not 'already' in globals():
     languages = {}
     linters = {}
     views = {}
-    edits = defaultdict(list)
     modules = None
     already = True
 
 def reinit():
     queue.reinit()
-
-def edit(vid, edit):
-    callbacks = edits.pop(vid, [])
-    for c in callbacks:
-        c(edit)
 
 def add_language(sub, name, attrs):
     if name:

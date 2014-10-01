@@ -12,6 +12,7 @@ from threading import Thread
 import time
 import json
 
+from .lint.edit import Edit
 from .lint.modules import Modules
 from .lint.linter import Linter
 from .lint.highlight import HighlightSet
@@ -150,14 +151,10 @@ class SublimeLint(sublime_plugin.EventListener):
                 plugins[name] = default
 
             settings['plugins'] = plugins
-            def replace(edit):
-                if not view.is_dirty():
-                    j = json.dumps({'user': settings}, indent=4, sort_keys=True)
-                    j = j.replace(' \n', '\n')
-                    view.replace(edit, sublime.Region(0, view.size()), j)
-
-            persist.edits[view.id()].append(replace)
-            view.run_command('sublimelint_edit')
+            with Edit(view) as edit:
+                j = json.dumps({'user': settings}, indent=4, sort_keys=True)
+                j = j.replace(' \n', '\n')
+                edit.replace(sublime.Region(0, view.size()), j)
             view.run_command('save')
 
     def on_new(self, view):
@@ -208,7 +205,3 @@ class SublimeLint(sublime_plugin.EventListener):
                 view.erase_status('sublimelint')
 
         persist.queue.delay()
-
-class sublimelint_edit(sublime_plugin.TextCommand):
-    def run(self, edit):
-        persist.edit(self.view.id(), edit)
