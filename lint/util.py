@@ -190,7 +190,7 @@ def popen(cmd, env=None):
         env = create_environment()
 
     try:
-        return subprocess.Popen(cmd, stdin=subprocess.PIPE,
+        return subprocess.Popen(cmd, bufsize=0, stdin=subprocess.PIPE,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             startupinfo=info, env=env)
     except OSError as err:
