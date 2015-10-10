@@ -10,7 +10,7 @@ from .util import memoize
 from . import persist
 from . import util
 
-syntax_re = re.compile(r'/([^/]+)\.tmLanguage$')
+syntax_re = re.compile(r'/(?P<name>[^/]+)\.(tmLanguage|sublime-syntax)$')
 
 class Tracker(type):
     def __init__(cls, name, bases, attrs):
@@ -93,7 +93,7 @@ class Linter(metaclass=Tracker):
         match = syntax_re.search(syn)
 
         if match:
-            syntax, = match.groups()
+            syntax = match.group('name')
         else:
             syntax = syn
 
