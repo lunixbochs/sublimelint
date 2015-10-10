@@ -12,6 +12,7 @@ from threading import Thread
 import time
 import json
 
+from .lint.edit import apply_sublimelint_edit
 from .lint.edit import Edit
 from .lint.modules import Modules
 from .lint.linter import Linter
